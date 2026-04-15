@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import type { gsap as GsapType } from "gsap";
 
 const clients = [
   "NEXUS CO", "VELOX", "AURA LABS", "DRIFT CO", "MATRIX", "ORBIS",
@@ -8,7 +9,8 @@ const clients = [
 
 export default function ClientsSlider() {
   const trackRef = useRef<HTMLDivElement>(null);
-  const isPaused = useRef(false);
+  // Store the specific tween so only the slider pauses/resumes
+  const tweenRef = useRef<ReturnType<typeof GsapType.to> | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -17,7 +19,7 @@ export default function ClientsSlider() {
       const track = trackRef.current;
       if (!track) return;
       const totalWidth = track.scrollWidth / 2;
-      gsap.to(track, {
+      tweenRef.current = gsap.to(track, {
         x: -totalWidth,
         duration: 30,
         ease: "none",
@@ -26,8 +28,15 @@ export default function ClientsSlider() {
           x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
         },
       });
-      track.addEventListener("mouseenter", () => { isPaused.current = true; gsap.globalTimeline.pause(); });
-      track.addEventListener("mouseleave", () => { isPaused.current = false; gsap.globalTimeline.resume(); });
+      const pause = () => tweenRef.current?.pause();
+      const resume = () => tweenRef.current?.resume();
+      track.addEventListener("mouseenter", pause);
+      track.addEventListener("mouseleave", resume);
+      return () => {
+        track.removeEventListener("mouseenter", pause);
+        track.removeEventListener("mouseleave", resume);
+        tweenRef.current?.kill();
+      };
     };
     initGSAP();
   }, []);

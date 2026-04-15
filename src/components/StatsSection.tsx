@@ -45,7 +45,7 @@ export default function StatsSection() {
     <section className="py-24 px-6 md:px-16 bg-background border-t border-white/5">
       <div className="max-w-7xl mx-auto" ref={sectionRef}>
         <p className="text-grey-mid text-xs tracking-[0.4em] uppercase mb-14 text-center">
-          &#47;&#47;STATS &#8211; Fun facts
+          {"// STATS – Fun facts"}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           {stats.map((s, i) => (
